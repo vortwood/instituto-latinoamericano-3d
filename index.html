@@ -325,7 +325,7 @@
     id="mv"
     alt="Modelo 3D de la fachada del Instituto Latinoamericano con la cancha de fútbol 5"
     ar
-    ar-modes="webxr scene-viewer quick-look"
+    ar-modes="webxr quick-look"
     ar-scale="auto"
     ar-placement="floor"
     camera-controls
@@ -435,9 +435,13 @@
     mv.play({ repetitions: 1 });
     finObra = setTimeout(() => { mv.pause(); mv.currentTime = FIN_OBRA; }, FIN_OBRA * 1000);
   }
-  // En AR dentro del navegador (WebXR) la obra arranca de nuevo al apoyar el modelo
+  // En AR el edificio aparece terminado: la animación lo enlentece en el celular
   mv.addEventListener("ar-status", (e) => {
-    if (e.detail.status === "session-started") setTimeout(elevar, 1200);
+    if (e.detail.status === "session-started") {
+      clearTimeout(finObra);
+      mv.pause();
+      mv.currentTime = FIN_OBRA;
+    }
   });
 
   // Encuadre: en un celular vertical entra menos ancho, la cámara se aleja
@@ -462,7 +466,7 @@
   const esIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
   const esAndroid = /Android/i.test(ua);
   // la versión evita que el celular abra una copia vieja guardada en caché
-  const VERSION_MODELO = "20261024a";
+  const VERSION_MODELO = "20261024b";
   const archivo = (nombre) => new URL(`${nombre}?v=${VERSION_MODELO}`, location.href).href;
 
   // Los artifacts no sirven .glb/.usdz: los modelos viajan en base64 y se
@@ -478,7 +482,7 @@
   }
   let usdzURL = null;
   if (EN_PAGES) {
-    usdzURL = archivo("il.usdz");
+    usdzURL = archivo("il-ar.usdz");   // estático, sin animación
     mv.iosSrc = usdzURL;
     mv.src = archivo("il.glb");
   } else blobDe("modelo-glb.txt", "model/gltf-binary")
@@ -517,7 +521,7 @@
       arLink.prepend(img);
       arLink.hidden = false;
     } else if (esAndroid && EN_PAGES) {
-      const glb = encodeURIComponent(archivo("il.glb"));
+      const glb = encodeURIComponent(archivo("il-ar.glb"));   // estático, sin animación
       arLink.href = `https://arvr.google.com/scene-viewer/1.0?file=${glb}&mode=ar_preferred&resizable=true&title=${encodeURIComponent("Instituto Latinoamericano")}`;
       arLink.target = "_blank";
       arLink.rel = "noopener";
