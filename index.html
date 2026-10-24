@@ -466,7 +466,7 @@
   const esIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
   const esAndroid = /Android/i.test(ua);
   // la versión evita que el celular abra una copia vieja guardada en caché
-  const VERSION_MODELO = "20261024b";
+  const VERSION_MODELO = "20261024c";
   const archivo = (nombre) => new URL(`${nombre}?v=${VERSION_MODELO}`, location.href).href;
 
   // Los artifacts no sirven .glb/.usdz: los modelos viajan en base64 y se
