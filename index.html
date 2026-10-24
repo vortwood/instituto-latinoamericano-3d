@@ -461,7 +461,9 @@
   const ua = navigator.userAgent;
   const esIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
   const esAndroid = /Android/i.test(ua);
-  const archivo = (nombre) => new URL(nombre, location.href).href;
+  // la versión evita que el celular abra una copia vieja guardada en caché
+  const VERSION_MODELO = "20261024a";
+  const archivo = (nombre) => new URL(`${nombre}?v=${VERSION_MODELO}`, location.href).href;
 
   // Los artifacts no sirven .glb/.usdz: los modelos viajan en base64 y se
   // convierten en blobs locales
@@ -478,7 +480,7 @@
   if (EN_PAGES) {
     usdzURL = archivo("il.usdz");
     mv.iosSrc = usdzURL;
-    mv.src = "il.glb";
+    mv.src = archivo("il.glb");
   } else blobDe("modelo-glb.txt", "model/gltf-binary")
     .then((url) => { mv.src = url; })
     .catch((err) => {
