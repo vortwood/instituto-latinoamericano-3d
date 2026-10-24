@@ -335,7 +335,7 @@
     min-camera-orbit="-95deg 18deg 5m"
     max-camera-orbit="95deg 89deg 75m"
     min-field-of-view="12deg"
-    max-field-of-view="40deg"
+    max-field-of-view="46deg"
     interpolation-decay="140"
     shadow-intensity="1"
     shadow-softness="0.7"
@@ -443,11 +443,11 @@
   function aplicar(v, corrimiento) {
     const [tx, ty, tz] = v.target.split(" ").map(parseFloat);
     const [th, ph, r] = v.orbit.split(" ");
-    const f = vertical() ? 1.75 : 1;
+    const f = vertical() ? 1.3 : 1;
     const [dx, dy] = corrimiento ? corrimiento(parseFloat(r) / 15) : [0, 0];
     mv.cameraTarget = `${tx + dx}m ${ty + dy}m ${tz}m`;
     mv.cameraOrbit = `${th} ${ph} ${parseFloat(r) * f}m`;
-    mv.fieldOfView = v.fov;
+    mv.fieldOfView = vertical() ? "42deg" : v.fov;
   }
   document.getElementById("elevar").addEventListener("click", elevar);
   if (vertical()) aplicar(VISTAS.frente);
