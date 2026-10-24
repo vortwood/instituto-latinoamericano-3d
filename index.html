@@ -1,0 +1,545 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Fachada del Instituto Latinoamericano (Maldonado) en 3D y realidad aumentada.">
+<style>html{color-scheme:light}body{margin:0}[hidden]{display:none!important}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);box-sizing:border-box;height:100%}</style>
+</head><body>
+<title>Instituto Latinoamericano 3D</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:wght@400;700&family=Public+Sans:wght@400;500;600&display=swap">
+<script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer@4.4.0/dist/model-viewer.min.js"></script>
+<style>
+  :root {
+    --cal: #f3f1ea;
+    --cielo: #dde6e3;
+    --verde: #3e6b37;
+    --verde-letras: #24503a;
+    --tinta: #1c2620;
+    --tinta-suave: #4f5d53;
+    --panel: rgba(250, 249, 245, 0.9);
+    --borde: rgba(36, 80, 58, 0.16);
+    --boton: #24503a;
+    --boton-txt: #f6f5ef;
+    --suelo: #cfd6d1;
+    --serif: "Libre Caslon Text", "Times New Roman", Georgia, serif;
+    --sans: "Public Sans", "Helvetica Neue", Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --cal: #121915;
+      --cielo: #1b2620;
+      --verde: #7fb787;
+      --verde-letras: #a9d3ae;
+      --tinta: #e6ede7;
+      --tinta-suave: #a5b4a9;
+      --panel: rgba(22, 31, 26, 0.88);
+      --borde: rgba(169, 211, 174, 0.18);
+      --boton: #a9d3ae;
+      --boton-txt: #13201a;
+      --suelo: #0e1411;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --cal: #121915;
+    --cielo: #1b2620;
+    --verde: #7fb787;
+    --verde-letras: #a9d3ae;
+    --tinta: #e6ede7;
+    --tinta-suave: #a5b4a9;
+    --panel: rgba(22, 31, 26, 0.88);
+    --borde: rgba(169, 211, 174, 0.18);
+    --boton: #a9d3ae;
+    --boton-txt: #13201a;
+    --suelo: #0e1411;
+  }
+
+  html, body { height: 100%; }
+  body {
+    background: var(--cal);
+    color: var(--tinta);
+    font: 15px/1.5 var(--sans);
+    overflow: hidden;
+  }
+  .escena {
+    position: relative;
+    height: 100%;
+    background: linear-gradient(180deg, var(--cielo) 0%, var(--cal) 62%, var(--suelo) 100%);
+  }
+  model-viewer {
+    width: 100%;
+    height: 100%;
+    --poster-color: transparent;
+    --progress-bar-color: var(--verde);
+  }
+  model-viewer:focus-visible { outline: 2px solid var(--verde); outline-offset: -2px; }
+
+  .letrero {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    right: 16px;
+    pointer-events: none;
+    display: grid;
+    gap: 2px;
+  }
+  .letrero .hab {
+    font: 500 11px/1.2 var(--sans);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--tinta-suave);
+  }
+  .letrero h1 {
+    margin: 0;
+    font: 700 clamp(22px, 4.4vw, 34px)/1.05 var(--serif);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--verde-letras);
+    text-wrap: balance;
+  }
+  .letrero .niveles {
+    font: 400 clamp(12px, 1.6vw, 14px)/1.3 var(--serif);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--verde-letras);
+  }
+
+  .controles {
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+  }
+  .grupo {
+    display: flex;
+    gap: 4px;
+    padding: 4px;
+    background: var(--panel);
+    border: 1px solid var(--borde);
+    border-radius: 999px;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  button, .boton {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    color: var(--tinta);
+    font: 500 13px/1 var(--sans);
+    padding: 10px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  button:hover { background: var(--borde); }
+  button:focus-visible, .boton:focus-visible { outline: 2px solid var(--verde); outline-offset: 2px; }
+  button[aria-pressed="true"] { background: var(--borde); color: var(--verde-letras); }
+  .ar {
+    background: var(--boton);
+    color: var(--boton-txt);
+    font-weight: 600;
+    font-size: 14px;
+    padding: 13px 20px;
+    box-shadow: 0 6px 18px rgba(20, 50, 30, 0.22);
+  }
+  .ar:hover { background: var(--boton); filter: brightness(1.08); }
+  .ar svg { width: 18px; height: 18px; }
+
+  .qr {
+    position: absolute;
+    right: 16px;
+    top: 16px;
+    width: 188px;
+    padding: 14px;
+    background: var(--panel);
+    border: 1px solid var(--borde);
+    border-radius: 14px;
+    display: grid;
+    gap: 10px;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  .qr img {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 6px;
+    background: #fff;
+    padding: 6px;
+    box-sizing: border-box;
+    image-rendering: pixelated;
+  }
+  .qr p { margin: 0; font-size: 12.5px; line-height: 1.4; color: var(--tinta-suave); }
+  .qr strong { color: var(--tinta); font-weight: 600; }
+
+  .credito {
+    margin-top: 6px;
+    font: 500 12.5px/1.3 var(--sans);
+    color: var(--tinta-suave);
+    letter-spacing: 0.02em;
+  }
+
+  /* Puntos interactivos sobre el modelo */
+  .punto {
+    --tam: 30px;
+    width: var(--tam);
+    height: var(--tam);
+    padding: 0;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    background: var(--verde-letras);
+    color: #fff;
+    font: 700 14px/1 var(--serif);
+    display: grid;
+    place-items: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.28);
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.5s, transform 0.2s;
+    position: relative;
+  }
+  .listo .punto { opacity: 1; }
+  .punto[data-visible="false"] { opacity: 0 !important; pointer-events: none; }
+  .punto:hover { transform: scale(1.1); background: var(--verde-letras); }
+  .punto::after {
+    content: "";
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    border: 2px solid var(--verde-letras);
+    opacity: 0;
+    animation: pulso 2.4s ease-out infinite;
+  }
+  .punto[aria-expanded="true"] { background: #fff; color: var(--verde-letras); }
+  .punto .etq {
+    position: absolute;
+    left: calc(100% + 8px);
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 5px 9px;
+    border-radius: 6px;
+    background: var(--panel);
+    color: var(--tinta);
+    font: 600 12px/1.2 var(--sans);
+    white-space: nowrap;
+    border: 1px solid var(--borde);
+    pointer-events: none;
+  }
+  @keyframes pulso {
+    0% { opacity: 0.7; transform: scale(0.8); }
+    100% { opacity: 0; transform: scale(1.6); }
+  }
+
+  .info {
+    position: absolute;
+    right: 16px;
+    bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+    width: min(320px, calc(100% - 32px));
+    padding: 16px 18px 14px;
+    background: var(--panel);
+    border: 1px solid var(--borde);
+    border-radius: 14px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 10px 30px rgba(15, 35, 22, 0.16);
+    display: grid;
+    gap: 6px;
+  }
+  .info .tema {
+    font: 500 11px/1.2 var(--sans);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--tinta-suave);
+  }
+  .info h2 {
+    margin: 0;
+    font: 700 19px/1.2 var(--serif);
+    color: var(--verde-letras);
+    text-wrap: balance;
+  }
+  .info p { margin: 0; font-size: 13.5px; line-height: 1.5; }
+  .info .pie { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; }
+  .info .pasos { font-size: 12px; color: var(--tinta-suave); font-variant-numeric: tabular-nums; }
+  .info .pie button { padding: 7px 10px; font-size: 12.5px; }
+  .info .cerrar { position: absolute; top: 6px; right: 6px; padding: 8px 10px; font-size: 16px; line-height: 1; }
+  .aviso {
+    position: absolute;
+    left: 50%;
+    top: 46%;
+    transform: translate(-50%, -50%);
+    max-width: min(340px, calc(100% - 32px));
+    padding: 14px 16px;
+    background: var(--panel);
+    border: 1px solid var(--borde);
+    border-radius: 12px;
+    font-size: 13px;
+    text-align: center;
+  }
+  .aviso a { color: var(--verde-letras); font-weight: 600; word-break: break-all; }
+
+  @media (max-width: 860px), (pointer: coarse) {
+    .qr { display: none; }
+    .info {
+      left: 16px;
+      right: 16px;
+      width: auto;
+      bottom: calc(70px + env(safe-area-inset-bottom, 0px));
+      max-height: 34vh;
+      overflow: auto;
+    }
+    .punto .etq { display: none; }
+  }
+  @media (max-width: 520px) {
+    .vistas button { padding: 9px 11px; font-size: 12.5px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+</style>
+
+<main class="escena">
+  <model-viewer
+    id="mv"
+    alt="Modelo 3D de la fachada del Instituto Latinoamericano con la cancha de fútbol 5"
+    ar
+    ar-modes="scene-viewer quick-look webxr"
+    ar-scale="auto"
+    ar-placement="floor"
+    camera-controls
+    touch-action="pan-y"
+    interaction-prompt="auto"
+    camera-target="1.2m 2.3m 0m"
+    camera-orbit="-18deg 82deg 23m"
+    field-of-view="30deg"
+    min-camera-orbit="-95deg 18deg 5m"
+    max-camera-orbit="95deg 89deg 75m"
+    min-field-of-view="12deg"
+    max-field-of-view="40deg"
+    interpolation-decay="140"
+    shadow-intensity="1"
+    shadow-softness="0.7"
+    environment-image="neutral"
+    tone-mapping="neutral"
+    exposure="1.05"
+    loading="eager">
+    <button class="punto" slot="hotspot-historia" data-i="0" data-position="0m 4.72m 0.12m" data-normal="0m 0m 1m" aria-expanded="false" aria-label="Historia del colegio">i<span class="etq">Historia</span></button>
+    <button class="punto" slot="hotspot-propuesta" data-i="1" data-position="0m 1.5m 0.25m" data-normal="0m 0m 1m" aria-expanded="false" aria-label="Propuesta educativa">i<span class="etq">Propuesta</span></button>
+    <button class="punto" slot="hotspot-inicial" data-i="2" data-position="-5.97m 1.7m 0.1m" data-normal="0m 0m 1m" aria-expanded="false" aria-label="Educación Inicial">i<span class="etq">Inicial</span></button>
+    <button class="punto" slot="hotspot-cancha" data-i="3" data-position="16.8m 0.6m -7m" data-normal="0m 1m 0m" aria-expanded="false" aria-label="La cancha">i<span class="etq">Cancha</span></button>
+    <button slot="ar-button" class="boton ar" id="arSlot" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3 4 7.5v9L12 21l8-4.5v-9L12 3Z"/><path d="m4 7.5 8 4.5 8-4.5M12 12v9"/></svg>
+      Ver en tu espacio
+    </button>
+  </model-viewer>
+
+  <header class="letrero">
+    <span class="hab">Habilitado Nº 34</span>
+    <h1>Instituto Latinoamericano</h1>
+    <span class="niveles">Educación Inicial · Primaria</span>
+    <span class="credito">alumna Sofía Ramos (1er Año)</span>
+  </header>
+
+  <aside class="qr" id="qr" hidden>
+    <img id="qrImg" alt="Código QR de esta página">
+    <p><strong>Escaneá con el celular</strong> para ver la fachada elevarse en realidad aumentada, en tamaño real.</p>
+  </aside>
+
+  <section class="info" id="info" aria-live="polite" hidden>
+    <button type="button" class="cerrar" id="cerrar" aria-label="Cerrar">×</button>
+    <span class="tema" id="infoTema"></span>
+    <h2 id="infoTitulo"></h2>
+    <p id="infoTexto"></p>
+    <div class="pie">
+      <span class="pasos" id="infoPasos"></span>
+      <button type="button" id="siguiente">Siguiente →</button>
+    </div>
+  </section>
+
+  <div class="aviso" id="aviso" hidden></div>
+
+  <nav class="controles" aria-label="Controles del modelo">
+    <div class="grupo vistas" role="group" aria-label="Vistas">
+      <button type="button" data-vista="frente" aria-pressed="true">Fachada</button>
+      <button type="button" data-vista="esquina" aria-pressed="false">Esquina</button>
+      <button type="button" data-vista="cancha" aria-pressed="false">Cancha</button>
+      <button type="button" id="elevar">Elevar</button>
+      <button type="button" id="conocer">Conocé el colegio</button>
+    </div>
+    <a class="boton ar" id="arLink" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3 4 7.5v9L12 21l8-4.5v-9L12 3Z"/><path d="m4 7.5 8 4.5 8-4.5M12 12v9"/></svg>
+      <span>Ver en tu espacio</span>
+    </a>
+  </nav>
+</main>
+
+<script>
+  const mv = document.getElementById("mv");
+  const arSlot = document.getElementById("arSlot");
+  const arLink = document.getElementById("arLink");
+  const aviso = document.getElementById("aviso");
+  const PUBLIC_URL = "https://vortwood.github.io/instituto-latinoamericano-3d/";
+  // En GitHub Pages los modelos se sirven tal cual; en el artifact van en base64
+  const EN_PAGES = location.hostname.endsWith("github.io");
+  const QR_SRC = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANIAAADSAQMAAAAFVwwBAAAABlBMVEUAAAD///+l2Z/dAAAAAnRSTlP//8i138cAAAAJcEhZcwAACxIAAAsSAdLdfvwAAAGYSURBVFiFzZjRjcMwDEMFeACP5NU9kgcIoBNJJU0P6D+DoHXy/CGrNCU38vcVTuwKXHkwuGLFzJEbr6YZmxXtzrMKjxqewGPmZcd2zK0FYB5m8NGV6RU+pzWjGnR7MmiiZowD4dbgv15MGPcY8vu6v/afB5M9YQ1Zd3Let595MEVco1G766yBRPcbM1Zxlxq2lFFjLObc3mrDYKYccRKLwVTqvRhGUQVgSRMX8LqeXNswvUVmUQAWMl6pR8btGMKlJoI+O+7smzF1JzQFFX5stmi9+DA2KMxv+8I4cWvCiTHiEgFVG6GixX7FimmDxV1ZoVrN9mNdQaOdi520PMuJMbmDtQoNCtcDZbgx/PyIOJ/eNF6acGKPJiTiQTuwYxABs4xGaulwkvmpqTaMX5Qso1/q9dOOJZsnnpZVt+7NZsW6h4b1ry6l7KXcWP8HocIfS4Z193xObLYLoLI+DvtowojxzEwR8BTK87N6PkP2KldDLcv0ZPD9PuRzy71ybcKUYobedrDbaq0Y9xiNtc8kEsQwY/n7cmJ/jJgnnfgMus4AAAAASUVORK5CYII=";
+
+  const VISTAS = {
+    frente: { target: "1.2m 2.3m 0m", orbit: "-18deg 82deg 23m", fov: "30deg" },
+    esquina: { target: "6m 2m -1m", orbit: "-48deg 76deg 26m", fov: "32deg" },
+    cancha: { target: "11m 0.5m -6m", orbit: "22deg 44deg 46m", fov: "32deg" },
+  };
+  document.querySelectorAll("[data-vista]").forEach((b) => {
+    b.addEventListener("click", () => {
+      const v = VISTAS[b.dataset.vista];
+      mv.cameraTarget = v.target;
+      mv.cameraOrbit = v.orbit;
+      mv.fieldOfView = v.fov;
+      document.querySelectorAll("[data-vista]").forEach((o) => o.setAttribute("aria-pressed", String(o === b)));
+    });
+  });
+
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function elevar() {
+    if (!mv.availableAnimations || !mv.availableAnimations.length) return;
+    mv.animationName = mv.availableAnimations[0];
+    mv.currentTime = reduce ? 3 : 0;
+    mv.play({ repetitions: 1 });
+    // a los 3 s la animación queda quieta en la pose final: se pausa ahí
+    setTimeout(() => { mv.pause(); mv.currentTime = 3.2; }, reduce ? 50 : 3300);
+  }
+  document.getElementById("elevar").addEventListener("click", elevar);
+  mv.addEventListener("load", () => {
+    elevar();
+    configurarAR();
+  });
+
+  const ua = navigator.userAgent;
+  const esIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const esAndroid = /Android/i.test(ua);
+  const archivo = (nombre) => new URL(nombre, location.href).href;
+
+  // Los artifacts no sirven .glb/.usdz: los modelos viajan en base64 y se
+  // convierten en blobs locales
+  async function blobDe(nombre, tipo) {
+    const res = await fetch(nombre);
+    if (!res.ok) throw new Error(`No se pudo leer ${nombre} (${res.status})`);
+    const b64 = (await res.text()).replace(/\s+/g, "");
+    const bin = atob(b64);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return URL.createObjectURL(new Blob([bytes], { type: tipo }));
+  }
+  let usdzURL = null;
+  if (EN_PAGES) {
+    usdzURL = archivo("il.usdz");
+    mv.iosSrc = usdzURL;
+    mv.src = "il.glb";
+  } else blobDe("modelo-glb.txt", "model/gltf-binary")
+    .then((url) => { mv.src = url; })
+    .catch((err) => {
+      aviso.hidden = false;
+      aviso.textContent = `No se pudo cargar el modelo: ${err.message}`;
+    });
+  if (esIOS && !EN_PAGES) {
+    blobDe("modelo-usdz.txt", "model/vnd.usdz+zip").then((url) => {
+      usdzURL = url;
+      mv.iosSrc = url;
+      if (mv.loaded) configurarAR();
+    }).catch(() => {});
+  }
+
+  function configurarAR() {
+    if (mv.canActivateAR) {
+      arSlot.hidden = false;
+      arLink.hidden = true;
+      return;
+    }
+    // Fuera del visor nativo: enlaces directos que abren el visor AR del sistema
+    if (esIOS) {
+      if (!usdzURL) return;
+      arLink.href = usdzURL;
+      arLink.rel = "ar";
+      const img = document.createElement("img");
+      img.alt = "";
+      img.width = 1;
+      img.height = 1;
+      arLink.prepend(img);
+      arLink.hidden = false;
+    } else if (esAndroid && EN_PAGES) {
+      const glb = encodeURIComponent(archivo("il.glb"));
+      arLink.href = `https://arvr.google.com/scene-viewer/1.0?file=${glb}&mode=ar_preferred&resizable=true&title=${encodeURIComponent("Instituto Latinoamericano")}`;
+      arLink.target = "_blank";
+      arLink.rel = "noopener";
+      arLink.hidden = false;
+    }
+  }
+  // --- Recorrido por el colegio (los puntos sobre la fachada)
+  const TEMAS = [
+    { tema: "Historia", titulo: "Más de 40 años en Maldonado",
+      texto: "Colegio habilitado por el Estado con el Nº 34, en Sarandí 1146, Maldonado. En más de cuatro décadas, más de 3.000 familias confiaron en él. Su lema es «Aprender a ser»: un proyecto educativo centrado en la formación en valores.",
+      vista: { target: "0m 3.6m 0m", orbit: "0deg 84deg 15m", fov: "30deg" } },
+    { tema: "Propuesta", titulo: "De Inicial a Secundaria",
+      texto: "Un enfoque constructivista y humanista que mira al niño como un ser integral: aprendizaje por descubrimiento, educación ambiental y compromiso social. Desde 2013 lleva adelante el Plan Roble, su plan de mejora de la propuesta educativa.",
+      vista: { target: "0m 1.8m 0m", orbit: "8deg 85deg 13m", fov: "30deg" } },
+    { tema: "Educación Inicial", titulo: "Los más chicos, desde Nivel 2",
+      texto: "La puerta de Educación Inicial recibe a los niños desde Nivel 2. El colegio también forma docentes con su Curso de Educador/a Inicial.",
+      vista: { target: "-5m 1.8m 0m", orbit: "-22deg 84deg 13m", fov: "30deg" } },
+    { tema: "Deporte", titulo: "La cancha de fútbol 5",
+      texto: "Detrás del muro sobre la calle está la cancha de fútbol 5, el espacio para deporte, educación física y recreos.",
+      vista: { target: "15m 0.5m -6m", orbit: "28deg 46deg 40m", fov: "32deg" } },
+  ];
+  const info = document.getElementById("info");
+  const puntos = [...document.querySelectorAll(".punto")];
+  let actual = -1;
+  function mostrar(i) {
+    actual = i;
+    const t = TEMAS[i];
+    document.getElementById("infoTema").textContent = t.tema;
+    document.getElementById("infoTitulo").textContent = t.titulo;
+    document.getElementById("infoTexto").textContent = t.texto;
+    document.getElementById("infoPasos").textContent = `${i + 1} de ${TEMAS.length}`;
+    info.hidden = false;
+    puntos.forEach((p) => p.setAttribute("aria-expanded", String(Number(p.dataset.i) === i)));
+    mv.cameraTarget = t.vista.target;
+    mv.cameraOrbit = t.vista.orbit;
+    mv.fieldOfView = t.vista.fov;
+    document.querySelectorAll("[data-vista]").forEach((o) => o.setAttribute("aria-pressed", "false"));
+  }
+  function cerrar() {
+    info.hidden = true;
+    actual = -1;
+    puntos.forEach((p) => p.setAttribute("aria-expanded", "false"));
+  }
+  puntos.forEach((p) => p.addEventListener("click", () => {
+    Number(p.dataset.i) === actual ? cerrar() : mostrar(Number(p.dataset.i));
+  }));
+  document.getElementById("conocer").addEventListener("click", () => mostrar(actual < 0 ? 0 : actual));
+  document.getElementById("siguiente").addEventListener("click", () => mostrar((actual + 1) % TEMAS.length));
+  document.getElementById("cerrar").addEventListener("click", cerrar);
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") cerrar(); });
+  mv.addEventListener("load", () => {
+    setTimeout(() => document.querySelector(".escena").classList.add("listo"), reduce ? 0 : 3000);
+  });
+
+  mv.addEventListener("ar-status", (e) => {
+    if (e.detail.status === "failed") {
+      aviso.hidden = false;
+      aviso.textContent = "Este navegador no pudo abrir la realidad aumentada. Probá desde Chrome en Android o Safari en iPhone.";
+      setTimeout(() => { aviso.hidden = true; }, 5000);
+    }
+  });
+
+  if (QR_SRC && !(esIOS || esAndroid)) {
+    document.getElementById("qrImg").src = QR_SRC;
+    document.getElementById("qr").hidden = false;
+  }
+</script>
+</body></html>
