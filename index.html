@@ -331,9 +331,9 @@
     tone-mapping="neutral"
     exposure="1.05"
     loading="eager">
-    <button class="punto" slot="hotspot-historia" data-i="0" data-position="0m 4.72m 0.12m" data-normal="0m 0m 1m" aria-expanded="false" aria-label="Historia del colegio">i<span class="etq">Historia</span></button>
-    <button class="punto" slot="hotspot-propuesta" data-i="1" data-position="0m 1.5m 0.25m" data-normal="0m 0m 1m" aria-expanded="false" aria-label="Propuesta educativa">i<span class="etq">Propuesta</span></button>
-    <button class="punto" slot="hotspot-inicial" data-i="2" data-position="-5.97m 1.7m 0.1m" data-normal="0m 0m 1m" aria-expanded="false" aria-label="Educación Inicial">i<span class="etq">Inicial</span></button>
+    <button class="punto" slot="hotspot-historia" data-i="0" data-position="0.75m 4.72m 0.1m" data-normal="0m 0m 1m" aria-expanded="false" aria-label="Historia del colegio">i<span class="etq">Historia</span></button>
+    <button class="punto" slot="hotspot-propuesta" data-i="1" data-position="1.35m 1.45m 0.05m" data-normal="0m 0m 1m" aria-expanded="false" aria-label="Propuesta educativa">i<span class="etq">Propuesta</span></button>
+    <button class="punto" slot="hotspot-inicial" data-i="2" data-position="-4.75m 1.7m 0.05m" data-normal="0m 0m 1m" aria-expanded="false" aria-label="Educación Inicial">i<span class="etq">Inicial</span></button>
     <button class="punto" slot="hotspot-cancha" data-i="3" data-position="16.8m 0.6m -7m" data-normal="0m 1m 0m" aria-expanded="false" aria-label="La cancha">i<span class="etq">Cancha</span></button>
     <button slot="ar-button" class="boton ar" id="arSlot" hidden>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3 4 7.5v9L12 21l8-4.5v-9L12 3Z"/><path d="m4 7.5 8 4.5 8-4.5M12 12v9"/></svg>
@@ -508,7 +508,11 @@
     document.getElementById("infoPasos").textContent = `${i + 1} de ${TEMAS.length}`;
     info.hidden = false;
     puntos.forEach((p) => p.setAttribute("aria-expanded", String(Number(p.dataset.i) === i)));
-    mv.cameraTarget = t.vista.target;
+    // correr el encuadre para que el panel quede al costado (o abajo en el celular)
+    const [tx, ty, tz] = t.vista.target.split(" ").map(parseFloat);
+    const ancho = window.innerWidth > 860 && !window.matchMedia("(pointer: coarse)").matches;
+    const k = parseFloat(t.vista.orbit.split(" ")[2]) / 15;
+    mv.cameraTarget = ancho ? `${tx + 2.6 * k}m ${ty}m ${tz}m` : `${tx}m ${ty - 1.4 * k}m ${tz}m`;
     mv.cameraOrbit = t.vista.orbit;
     mv.fieldOfView = t.vista.fov;
     document.querySelectorAll("[data-vista]").forEach((o) => o.setAttribute("aria-pressed", "false"));
