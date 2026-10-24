@@ -299,7 +299,19 @@
     .punto .etq { display: none; }
   }
   @media (max-width: 520px) {
-    .vistas button { padding: 9px 11px; font-size: 12.5px; }
+    .controles { flex-direction: column-reverse; gap: 10px; }
+    .grupo.vistas {
+      max-width: 100%;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .grupo.vistas::-webkit-scrollbar { display: none; }
+    .vistas button { padding: 10px 12px; font-size: 13px; flex: none; }
+    .ar { width: 100%; max-width: 340px; justify-content: center; padding: 15px 20px; font-size: 15px; }
+    .punto { --tam: 34px; }
+    .info { bottom: calc(132px + env(safe-area-inset-bottom, 0px)); }
+    .letrero h1 { font-size: 21px; }
   }
   @media (prefers-reduced-motion: reduce) {
     * { transition: none !important; }
@@ -311,7 +323,7 @@
     id="mv"
     alt="Modelo 3D de la fachada del Instituto Latinoamericano con la cancha de fútbol 5"
     ar
-    ar-modes="scene-viewer quick-look webxr"
+    ar-modes="webxr scene-viewer quick-look"
     ar-scale="auto"
     ar-placement="floor"
     camera-controls
@@ -398,24 +410,47 @@
   };
   document.querySelectorAll("[data-vista]").forEach((b) => {
     b.addEventListener("click", () => {
-      const v = VISTAS[b.dataset.vista];
-      mv.cameraTarget = v.target;
-      mv.cameraOrbit = v.orbit;
-      mv.fieldOfView = v.fov;
+      aplicar(VISTAS[b.dataset.vista]);
       document.querySelectorAll("[data-vista]").forEach((o) => o.setAttribute("aria-pressed", String(o === b)));
     });
   });
 
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  // La obra dura ~6,4 s; después el archivo sólo mantiene la pose final
+  // (una hora, para que los visores AR del sistema no la repitan)
+  const FIN_OBRA = 6.5;
+  let finObra = null;
   function elevar() {
     if (!mv.availableAnimations || !mv.availableAnimations.length) return;
+    clearTimeout(finObra);
     mv.animationName = mv.availableAnimations[0];
-    mv.currentTime = reduce ? 3 : 0;
+    if (reduce) {
+      mv.currentTime = FIN_OBRA;
+      mv.pause();
+      return;
+    }
+    mv.currentTime = 0;
     mv.play({ repetitions: 1 });
-    // a los 3 s la animación queda quieta en la pose final: se pausa ahí
-    setTimeout(() => { mv.pause(); mv.currentTime = 3.2; }, reduce ? 50 : 3300);
+    finObra = setTimeout(() => { mv.pause(); mv.currentTime = FIN_OBRA; }, FIN_OBRA * 1000);
+  }
+  // En AR dentro del navegador (WebXR) la obra arranca de nuevo al apoyar el modelo
+  mv.addEventListener("ar-status", (e) => {
+    if (e.detail.status === "session-started") setTimeout(elevar, 1200);
+  });
+
+  // Encuadre: en un celular vertical entra menos ancho, la cámara se aleja
+  const vertical = () => window.innerHeight > window.innerWidth * 1.1;
+  function aplicar(v, corrimiento) {
+    const [tx, ty, tz] = v.target.split(" ").map(parseFloat);
+    const [th, ph, r] = v.orbit.split(" ");
+    const f = vertical() ? 1.75 : 1;
+    const [dx, dy] = corrimiento ? corrimiento(parseFloat(r) / 15) : [0, 0];
+    mv.cameraTarget = `${tx + dx}m ${ty + dy}m ${tz}m`;
+    mv.cameraOrbit = `${th} ${ph} ${parseFloat(r) * f}m`;
+    mv.fieldOfView = v.fov;
   }
   document.getElementById("elevar").addEventListener("click", elevar);
+  if (vertical()) aplicar(VISTAS.frente);
   mv.addEventListener("load", () => {
     elevar();
     configurarAR();
@@ -458,8 +493,12 @@
 
   function configurarAR() {
     if (mv.canActivateAR) {
-      arSlot.hidden = false;
-      arLink.hidden = true;
+      // botón propio en la barra (el slot queda oculto para que no aparezca el de model-viewer)
+      arLink.href = "#ar";
+      arLink.removeAttribute("rel");
+      arLink.removeAttribute("target");
+      arLink.onclick = (e) => { e.preventDefault(); mv.activateAR(); };
+      arLink.hidden = false;
       return;
     }
     // Fuera del visor nativo: enlaces directos que abren el visor AR del sistema
@@ -509,12 +548,8 @@
     info.hidden = false;
     puntos.forEach((p) => p.setAttribute("aria-expanded", String(Number(p.dataset.i) === i)));
     // correr el encuadre para que el panel quede al costado (o abajo en el celular)
-    const [tx, ty, tz] = t.vista.target.split(" ").map(parseFloat);
     const ancho = window.innerWidth > 860 && !window.matchMedia("(pointer: coarse)").matches;
-    const k = parseFloat(t.vista.orbit.split(" ")[2]) / 15;
-    mv.cameraTarget = ancho ? `${tx + 2.6 * k}m ${ty}m ${tz}m` : `${tx}m ${ty - 1.4 * k}m ${tz}m`;
-    mv.cameraOrbit = t.vista.orbit;
-    mv.fieldOfView = t.vista.fov;
+    aplicar(t.vista, (k) => (ancho ? [2.6 * k, 0] : [0, -1.6 * k]));
     document.querySelectorAll("[data-vista]").forEach((o) => o.setAttribute("aria-pressed", "false"));
   }
   function cerrar() {
@@ -530,7 +565,7 @@
   document.getElementById("cerrar").addEventListener("click", cerrar);
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") cerrar(); });
   mv.addEventListener("load", () => {
-    setTimeout(() => document.querySelector(".escena").classList.add("listo"), reduce ? 0 : 3000);
+    setTimeout(() => document.querySelector(".escena").classList.add("listo"), reduce ? 0 : FIN_OBRA * 1000);
   });
 
   mv.addEventListener("ar-status", (e) => {
