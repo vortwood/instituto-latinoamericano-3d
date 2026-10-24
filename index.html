@@ -380,11 +380,11 @@
 
   <nav class="controles" aria-label="Controles del modelo">
     <div class="grupo vistas" role="group" aria-label="Vistas">
+      <button type="button" id="conocer">Conocé el colegio</button>
       <button type="button" data-vista="frente" aria-pressed="true">Fachada</button>
       <button type="button" data-vista="esquina" aria-pressed="false">Esquina</button>
       <button type="button" data-vista="cancha" aria-pressed="false">Cancha</button>
       <button type="button" id="elevar">Elevar</button>
-      <button type="button" id="conocer">Conocé el colegio</button>
     </div>
     <a class="boton ar" id="arLink" hidden>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3 4 7.5v9L12 21l8-4.5v-9L12 3Z"/><path d="m4 7.5 8 4.5 8-4.5M12 12v9"/></svg>
@@ -443,7 +443,7 @@
   function aplicar(v, corrimiento) {
     const [tx, ty, tz] = v.target.split(" ").map(parseFloat);
     const [th, ph, r] = v.orbit.split(" ");
-    const f = vertical() ? 1.3 : 1;
+    const f = vertical() ? 1.02 : 1;
     const [dx, dy] = corrimiento ? corrimiento(parseFloat(r) / 15) : [0, 0];
     mv.cameraTarget = `${tx + dx}m ${ty + dy}m ${tz}m`;
     mv.cameraOrbit = `${th} ${ph} ${parseFloat(r) * f}m`;
